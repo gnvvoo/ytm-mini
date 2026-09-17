@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "YTM Mini",
+  "version": "0.1.0",
+  "description": "유튜브 뮤직을 항상 위에 뜨는 작은 창으로 띄웁니다.",
+  "content_scripts": [
+    {
+      "matches": ["https://music.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
