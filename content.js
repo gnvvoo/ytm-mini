@@ -10,7 +10,6 @@
     byline: "ytmusic-player-bar .byline",
     next: "ytmusic-player-bar .next-button",
     prev: "ytmusic-player-bar .previous-button",
-    like: "ytmusic-player-bar #button-shape-like button",
   };
 
   const $ = (sel) => document.querySelector(sel);
@@ -20,7 +19,7 @@
     const v = video();
     const img = $(SEL.art);
     // 썸네일 URL 끝의 =w60-h60 같은 크기 지시자를 키워서 선명하게 받는다.
-    const art = img?.src ? img.src.replace(/=w\d+-h\d+/, "=w600-h600") : "";
+    const art = img?.src ? img.src.replace(/=w\d+-h\d+/, "=w400-h400") : "";
     return {
       art,
       title: $(SEL.title)?.textContent?.trim() || "재생 중인 곡 없음",
@@ -54,6 +53,7 @@
   };
 
   // ------------------------------------------------------------------ PiP 창
+  // 가로 배치: 왼쪽에 정보와 컨트롤, 오른쪽에 작은 앨범아트.
   const CSS = `
     @font-face { font-family: "PretendardLocal"; src: local("Pretendard Variable"), local("Pretendard"); }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -61,27 +61,28 @@
     body {
       font-family: "PretendardLocal", Pretendard, -apple-system, "Segoe UI",
                    "Malgun Gothic", system-ui, sans-serif;
-      background: #000; color: #fff; height: 100vh;
-      display: flex; flex-direction: column; overflow: hidden;
+      background: #000; color: #fff; height: 100vh; padding: 16px;
+      position: relative; overflow: hidden;
       user-select: none; -webkit-user-select: none;
     }
-    /* 앨범아트가 주인공. 뒤로 흘려놓은 같은 이미지가 창 전체 색을 잡아준다. */
-    #stage { position: relative; flex: 1 1 auto; min-height: 0; display: grid; place-items: center; }
+    /* 앨범아트를 크게 못 쓰는 대신, 뒤로 흘려놓은 같은 이미지가 창 색을 잡아준다. */
     #glow {
-      position: absolute; inset: -20%; background-size: cover; background-position: center;
-      filter: blur(48px) saturate(1.6); opacity: .45; transform: scale(1.1);
+      position: absolute; inset: -30%; pointer-events: none;
+      background-size: cover; background-position: center;
+      filter: blur(56px) saturate(1.7); opacity: .4;
       transition: background-image .4s;
     }
-    #stage::after {
-      content: ""; position: absolute; inset: 0;
-      background: linear-gradient(to bottom, transparent 55%, rgba(0,0,0,.85));
+    #wrap { position: relative; height: 100%; display: flex; gap: 16px; }
+    #left {
+      flex: 1 1 auto; min-width: 0;
+      display: flex; flex-direction: column; justify-content: space-between;
     }
     #art {
-      position: relative; width: min(82vw, 82vh); aspect-ratio: 1;
-      object-fit: cover; border-radius: 6px; background: #1a1a1a;
-      box-shadow: 0 18px 44px rgba(0,0,0,.6);
+      flex: 0 0 auto; align-self: flex-start;
+      width: clamp(64px, 30%, 132px); aspect-ratio: 1;
+      object-fit: cover; border-radius: 4px; background: #1a1a1a;
+      box-shadow: 0 10px 26px rgba(0,0,0,.6);
     }
-    #panel { flex: 0 0 auto; padding: 14px 18px 18px; }
     #title {
       font-size: 15px; font-weight: 600; letter-spacing: -.01em;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -90,14 +91,7 @@
       margin-top: 3px; font-size: 12px; color: rgba(255,255,255,.55);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    #track { margin: 14px 0 6px; height: 14px; display: flex; align-items: center; cursor: pointer; }
-    #rail { width: 100%; height: 3px; border-radius: 2px; background: rgba(255,255,255,.18); }
-    #fill { height: 100%; width: 0; border-radius: 2px; background: #fff; }
-    #times {
-      display: flex; justify-content: space-between;
-      font-size: 10px; font-variant-numeric: tabular-nums; color: rgba(255,255,255,.4);
-    }
-    #ctrls { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 22px; }
+    #ctrls { display: flex; align-items: center; gap: 14px; margin: 6px 0; }
     button {
       border: 0; background: none; color: #fff; cursor: pointer;
       display: grid; place-items: center; border-radius: 50%;
@@ -105,31 +99,47 @@
     }
     button:hover { opacity: .65; }
     button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-    .side { width: 34px; height: 34px; }
-    #play { width: 46px; height: 46px; background: #fff; color: #000; }
+    .side { width: 28px; height: 28px; }
+    #play { width: 38px; height: 38px; background: #fff; color: #000; }
     svg { pointer-events: none; }
+    #bottom { display: flex; align-items: center; gap: 8px; }
+    #cur, #dur {
+      flex: 0 0 auto; font-size: 10px; font-variant-numeric: tabular-nums;
+      color: rgba(255,255,255,.4);
+    }
+    #track { flex: 1 1 auto; height: 14px; display: flex; align-items: center; cursor: pointer; }
+    #rail { width: 100%; height: 3px; border-radius: 2px; background: rgba(255,255,255,.18); }
+    #fill { height: 100%; width: 0; border-radius: 2px; background: #fff; }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   `;
 
   const ICON = {
-    prev: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zm3 6 8 6V6z"/></svg>`,
-    next: `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM6 18l8-6-8-6z"/></svg>`,
-    play: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
-    pause: `<svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>`,
+    prev: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M7 6h2v12H7zm3 6 8 6V6z"/></svg>`,
+    next: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM6 18l8-6-8-6z"/></svg>`,
+    play: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
+    pause: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>`,
   };
 
   const HTML = `
-    <div id="stage"><div id="glow"></div><img id="art" alt=""></div>
-    <div id="panel">
-      <div id="title"></div>
-      <div id="byline"></div>
-      <div id="track"><div id="rail"><div id="fill"></div></div></div>
-      <div id="times"><span id="cur">0:00</span><span id="dur">0:00</span></div>
-      <div id="ctrls">
-        <button id="prev" class="side" title="이전 곡">${ICON.prev}</button>
-        <button id="play" title="재생/일시정지">${ICON.play}</button>
-        <button id="next" class="side" title="다음 곡">${ICON.next}</button>
+    <div id="glow"></div>
+    <div id="wrap">
+      <div id="left">
+        <div id="meta">
+          <div id="title"></div>
+          <div id="byline"></div>
+        </div>
+        <div id="ctrls">
+          <button id="prev" class="side" title="이전 곡">${ICON.prev}</button>
+          <button id="play" title="재생/일시정지">${ICON.play}</button>
+          <button id="next" class="side" title="다음 곡">${ICON.next}</button>
+        </div>
+        <div id="bottom">
+          <span id="cur">0:00</span>
+          <div id="track"><div id="rail"><div id="fill"></div></div></div>
+          <span id="dur">0:00</span>
+        </div>
       </div>
+      <img id="art" alt="">
     </div>
   `;
 
@@ -147,8 +157,8 @@
     }
 
     const win = await documentPictureInPicture.requestWindow({
-      width: 320,
-      height: 430,
+      width: 420,
+      height: 180,
       disallowReturnToOpener: true,
     });
     pipWindow = win;
