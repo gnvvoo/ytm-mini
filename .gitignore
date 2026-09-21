@@ -5,3 +5,4 @@ Thumbs.db
 *.pem
 .idea/
 .vscode/
+.omc/
