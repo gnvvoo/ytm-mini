@@ -188,11 +188,15 @@
     body[data-progress="off"] #bottom { display: none; }
 
     /* ------------------------------------------------------------ 설정 패널 */
+    /* 앨범아트 모서리에 얹히는 자리라, 밝은 아트 위에서도 보이게 칩을 깐다. */
     #gear {
-      position: absolute; top: 6px; right: 6px; z-index: 3;
-      width: 24px; height: 24px; opacity: .35; color: var(--fg);
+      position: absolute; top: 8px; right: 8px; z-index: 3;
+      width: 26px; height: 26px; color: #fff;
+      background: rgba(0,0,0,.5); backdrop-filter: blur(6px);
+      opacity: .6; transition: opacity .15s;
     }
-    #gear:hover { opacity: .9; }
+    body:hover #gear, #gear:focus-visible { opacity: 1; }
+    #gear:hover { opacity: 1; }
     #settings {
       position: absolute; inset: 0; z-index: 2; display: none;
       background: var(--panel); color: var(--fg);
@@ -228,7 +232,7 @@
     next: `<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M15 6h2v12h-2zM6 18l8-6-8-6z"/></svg>`,
     play: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`,
     pause: `<svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>`,
-    gear: `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="m19.4 13-.1-1 .1-1 1.6-1.3a.7.7 0 0 0 .2-.9l-1.7-2.9a.7.7 0 0 0-.8-.3l-2 .8a7 7 0 0 0-1.7-1l-.3-2.1a.7.7 0 0 0-.7-.6h-3.4a.7.7 0 0 0-.7.6l-.3 2.1a7 7 0 0 0-1.7 1l-2-.8a.7.7 0 0 0-.8.3L2.8 8.8a.7.7 0 0 0 .2.9L4.6 11l-.1 1 .1 1-1.6 1.3a.7.7 0 0 0-.2.9l1.7 2.9c.2.3.5.4.8.3l2-.8c.5.4 1.1.8 1.7 1l.3 2.1c0 .3.4.6.7.6h3.4c.3 0 .6-.3.7-.6l.3-2.1a7 7 0 0 0 1.7-1l2 .8c.3.1.6 0 .8-.3l1.7-2.9a.7.7 0 0 0-.2-.9L19.4 13z" opacity=".55"/></svg>`,
+    gear: `<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4z"/><path d="m19.4 13-.1-1 .1-1 1.6-1.3a.7.7 0 0 0 .2-.9l-1.7-2.9a.7.7 0 0 0-.8-.3l-2 .8a7 7 0 0 0-1.7-1l-.3-2.1a.7.7 0 0 0-.7-.6h-3.4a.7.7 0 0 0-.7.6l-.3 2.1a7 7 0 0 0-1.7 1l-2-.8a.7.7 0 0 0-.8.3L2.8 8.8a.7.7 0 0 0 .2.9L4.6 11l-.1 1 .1 1-1.6 1.3a.7.7 0 0 0-.2.9l1.7 2.9c.2.3.5.4.8.3l2-.8c.5.4 1.1.8 1.7 1l.3 2.1c0 .3.4.6.7.6h3.4c.3 0 .6-.3.7-.6l.3-2.1a7 7 0 0 0 1.7-1l2 .8c.3.1.6 0 .8-.3l1.7-2.9a.7.7 0 0 0-.2-.9L19.4 13z" opacity=".55"/></svg>`,
   };
 
   const HTML = `
