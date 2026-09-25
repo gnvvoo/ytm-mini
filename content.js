@@ -119,7 +119,7 @@
     body {
       font-family: "PretendardLocal", Pretendard, -apple-system, "Segoe UI",
                    "Malgun Gothic", system-ui, sans-serif;
-      background: var(--bg); color: var(--fg); height: 100vh; padding: 16px;
+      background: var(--bg); color: var(--fg); height: 100vh; padding: 11px 13px;
       position: relative; overflow: hidden;
       user-select: none; -webkit-user-select: none;
     }
@@ -203,25 +203,29 @@
       padding: 14px 16px; overflow-y: auto;
       font-size: 12px;
     }
-    body[data-settings="on"] #settings { display: block; }
-    #settings h2 { font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+    /* 창이 낮아 세로로 쌓으면 스크롤이 생긴다. 두 칸으로 접어 한 화면에 담는다. */
+    body[data-settings="on"] #settings {
+      display: grid; grid-template-columns: 1fr 1fr;
+      column-gap: 16px; align-content: start;
+    }
+    #settings h2 { grid-column: 1 / -1; font-size: 12px; font-weight: 600; margin-bottom: 4px; }
     .row {
       display: flex; align-items: center; justify-content: space-between;
-      gap: 12px; padding: 5px 0; border-top: 1px solid var(--line);
+      gap: 8px; padding: 3px 0; min-width: 0;
     }
-    .row:first-of-type { border-top: 0; }
-    .row > span { color: var(--fg-dim); }
+    .row > span { color: var(--fg-dim); white-space: nowrap; }
     .row input[type="color"] {
       width: 30px; height: 20px; padding: 0; border: 0; background: none; cursor: pointer;
     }
-    .row input[type="range"] { width: 110px; accent-color: var(--accent); cursor: pointer; }
+    .row input[type="range"] { width: 88px; accent-color: var(--accent); cursor: pointer; }
     .row input[type="checkbox"] { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
     .row select {
       background: var(--bg); color: var(--fg); border: 1px solid var(--line);
       border-radius: 4px; padding: 3px 6px; font: inherit; cursor: pointer;
     }
     #reset {
-      margin-top: 12px; width: 100%; border-radius: 6px; padding: 7px;
+      grid-column: 1 / -1;
+      margin-top: 8px; width: 100%; border-radius: 6px; padding: 5px;
       border: 1px solid var(--line); color: var(--fg-dim); font: inherit;
     }
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -345,7 +349,8 @@
     // requestWindow()는 사용자 조작 직후에만 부를 수 있어서, 저장된 설정은 미리 읽어둔다.
     const win = await documentPictureInPicture.requestWindow({
       width: 420,
-      height: settings.layout === "col" ? 380 : 180,
+      // 브라우저가 위에 제목 표시줄을 얹으므로 그만큼 더 받아 내용 높이를 지킨다.
+      height: settings.layout === "col" ? 412 : 196,
       disallowReturnToOpener: true,
     });
     pipWindow = win;
